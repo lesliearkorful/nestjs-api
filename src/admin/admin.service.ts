@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 export class AdminService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async allUsers(): Promise<User[]> {
     return this.usersRepository.find();

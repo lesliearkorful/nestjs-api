@@ -8,6 +8,6 @@ import { Common } from '../common';
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   providers: [AdminService, Common],
-  controllers: [AdminController]
+  controllers: [AdminController],
 })
 export class AdminModule {}

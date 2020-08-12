@@ -1,4 +1,13 @@
-import { BadRequestException, Body, Controller, Get, Post, UnauthorizedException, Request, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  UnauthorizedException,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { User } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { Common } from '../common';
@@ -7,25 +16,35 @@ import { JwtAuthGuard } from './auth.jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private common: Common) { }
+  constructor(
+    private readonly authService: AuthService,
+    private common: Common,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('logout')
   async logout(@Request() req) {
     const status = await this.authService.logout(req.user.username);
-    return this.common.resData({ "logout": status });
+    return this.common.resData({ logout: status });
   }
 
   @Post('login')
   async login(@Body() req: CreateUserDto) {
     const user = await this.authService.login(req.username, req.password);
-    if (user == null) throw new UnauthorizedException("User credentials are incorrect.");
-    else return this.common.resData({
-      token: user.token,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      profile: user
-    });
+    if (user == null) {
+      throw new UnauthorizedException(
+        this.common.resErrors([
+          { property: 'account', message: 'User credentials are incorrect.' },
+        ]),
+      );
+    } else {
+      return this.common.resData({
+        token: user.token,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        profile: user,
+      });
+    }
   }
 
   @Post('register')
@@ -41,7 +60,14 @@ export class AuthController {
     const errors = form.validate();
     if (errors.length > 0) return this.common.resErrors(errors);
     const user = await this.authService.register(form);
-    if (user == null) throw new BadRequestException();
-    else return user;
+    if (user == null) {
+      throw new BadRequestException(
+        this.common.resErrors([
+          { property: 'account', message: 'The new account was not created.' },
+        ]),
+      );
+    } else {
+      return user;
+    }
   }
 }

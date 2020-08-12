@@ -1,6 +1,12 @@
 import { Exclude } from 'class-transformer';
 import { IsEmail, isEmail, isEmpty } from 'class-validator';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Common } from '../common';
 
 @Entity()
@@ -51,10 +57,14 @@ export class User {
   validate(): Map<string, string>[] {
     const errors = [];
     const common = new Common();
-    if (!isEmail(this.email)) errors.push(common.errorMessage("email", "Email is not valid"));
-    if (isEmpty(this.username)) errors.push(common.errorMessage("username", "Username is required"));
-    if (isEmpty(this.fullname)) errors.push(common.errorMessage("fullname", "Fullname is required"));
-    if (isEmpty(this.password)) errors.push(common.errorMessage("password", "Password is required"));
+    if (!isEmail(this.email))
+      errors.push(common.errorMessage('email', 'Email is not valid'));
+    if (isEmpty(this.username))
+      errors.push(common.errorMessage('username', 'Username is required'));
+    if (isEmpty(this.fullname))
+      errors.push(common.errorMessage('fullname', 'Fullname is required'));
+    if (isEmpty(this.password))
+      errors.push(common.errorMessage('password', 'Password is required'));
     return errors;
   }
 

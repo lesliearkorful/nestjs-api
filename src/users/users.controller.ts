@@ -1,4 +1,15 @@
-import { Controller, Get, NotFoundException, Param, Request, UseGuards, Post, Body, HttpCode, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Request,
+  UseGuards,
+  Post,
+  Body,
+  HttpCode,
+  BadRequestException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Common } from '../common';
 import { JwtAuthGuard } from 'src/auth/auth.jwt-auth.guard';
@@ -6,7 +17,10 @@ import { CreateUserDto } from './createUserDto.dto';
 
 @Controller()
 export class UsersController {
-  constructor(private readonly service: UsersService, private readonly common: Common) { }
+  constructor(
+    private readonly service: UsersService,
+    private readonly common: Common,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
@@ -26,10 +40,19 @@ export class UsersController {
     form.bio = body.bio;
     form.website = body.website;
     if (await this.service.updateUser(form)) {
-      const updatedUser = await this.service.findOne({ username: req.user.username });
+      const updatedUser = await this.service.findOne({
+        username: req.user.username,
+      });
       return this.common.resData(updatedUser);
     } else {
-      throw new BadRequestException("Changes not saved");
+      throw new BadRequestException(
+        this.common.resErrors([
+          {
+            property: 'profile',
+            message: 'The changes were not saved',
+          },
+        ]),
+      );
     }
   }
 
@@ -37,7 +60,13 @@ export class UsersController {
   @Get('profile/:username')
   async profile(@Param('username') params: string) {
     const user = await this.service.findOne({ username: params });
-    if (user == null) throw new NotFoundException("User not found");
+    if (user == null) {
+      throw new NotFoundException(
+        this.common.resErrors([
+          { property: 'profile', message: 'User does not exist' },
+        ]),
+      );
+    }
     return this.common.resData(user);
   }
 }
