@@ -1,7 +1,6 @@
-import { Controller, Delete, Get } from '@nestjs/common';
-import { AdminService } from './admin.service';
-import { User } from '../users/user.entity';
+import { Controller, Get, Query } from '@nestjs/common';
 import { Common } from '../common';
+import { AdminService } from './admin.service';
 
 @Controller('admin')
 export class AdminController {
@@ -11,9 +10,16 @@ export class AdminController {
   ) {}
 
   @Get('users')
-  async login() {
-    const users = await this.service.allUsers();
-    return this.common.resData(users);
+  async login(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    limit = limit > 100 ? 100 : limit;
+    const result = await this.service.paginate({
+      page,
+      limit,
+    });
+    return this.common.resListData(result);
   }
 
   // @Delete('users')
